@@ -4,11 +4,10 @@ Two self-contained components to bring into the new Milieu site. Each one is a w
 
 | Component | Demo page | What it is |
 |---|---|---|
-| Full page preview (reference only) | `reference/index.html` | The whole landing page as designed, to see the hero and form in context. **Do not build from it.** The other sections are outdated, and the live site has newer copy. |
 | **MiHQ hero** | `hero/index.html` | Top fold, then a pinned scroll sequence: the orb glides to centre, the MiHQ lockup and line fade in, then four product cards glide in one by one. Includes the mobile and portrait-tablet layout. |
 | **Subscribe form** | `subscribe/index.html` | Newsletter card that sits under the Latest Intelligence articles. Optional "Have more time?" interests panel and a thank-you message. |
 
-Only these two components are meant for the build. The full page preview is there purely for context. Its other sections are older than the live site, so take code only from `hero/` and `subscribe/`.
+Only these two sections are in this repo. The rest of the live site has newer copy and is **not** included on purpose, so nothing here should overwrite it.
 
 ---
 
@@ -59,12 +58,19 @@ hero/assets/icon-solutions.svg
 - **Gliding cards:** cards follow a *smoothed* copy of the scroll (`glideCards`, eased each animation frame), so they drift into place rather than tracking the scroll exactly.
 - **Layout is calculated in JS** (`layoutHeroEco`) on load and resize. It sizes the orb, draws the orbit rings around it, and places each card using its `data-angle` attribute.
 - **Mobile and portrait tablets** (width under 760px, or width/height under 0.8): the orb sits at the top and the cards stack as a deck under it. Each new card rises from below and the earlier cards step back.
+- **Fits every screen:** sizes are worked out from the visible area below the nav.
+  - The locked orb is at most 84% of that height and 50% of the width, so it never runs under the nav or off-screen.
+  - On load the orb peeks up from the bottom but always starts below the hero buttons.
+  - Cards scale down on smaller screens (to a minimum of 62% on desktop and 80% on phones), and their slots are spaced so they never overlap each other or leave the screen.
+  - The MiHQ lockup and line size themselves from the orb (`--orb-w`).
+  - Tested at 1920×1080, 1440×900, 1366×768, 1280×720, 1280×600, 1180×820, 1024×768, 1024×600, 820×1180, 768×1024, 390×844, 375×667, 360×640, 320×568 and 844×390 (landscape phone).
+- **Two-line headline:** each line of the H1 is wrapped in `.h1-line` (`white-space: nowrap`). The font size scales to the narrower of screen width and screen height, so it always sits on exactly two lines, from 28px on a 320px phone up to 96px.
 - **Layering:** the orb video sits at `z-index: 3` with `mix-blend-mode: lighten`. The stage (cards and MiHQ copy) is at `z-index: 4`, above the orb.
 - **Load flash fix:** the orb video stays at `opacity: 0` until the JS has placed it. The JS then adds `.is-ready` and the orb fades in, so it never flashes in the top-left corner on load.
 
 ### Integrating
 1. Copy the CSS, HTML and JS blocks, plus `hero/assets/`. Update the asset paths in the HTML if your folder structure differs.
-2. **Nav height:** set `NAV_HEIGHT` at the top of the JS to your fixed nav's height. It's 64px in the demo.
+2. **Nav height:** set `NAV_HEIGHT` in the JS to your fixed nav's height. It's 64px in the demo. Everything centres in the space below it, including the top-fold copy (via the `--nav-h` CSS variable the JS sets). If your nav isn't fixed, set it to 0.
 3. Run the JS once the hero HTML is in the page, for example at the end of `<body>`, on `DOMContentLoaded`, or after the component mounts. It only touches elements inside the hero.
 4. **Buttons:** "Request demo" and "Contact us" use placeholder `.btn` classes. Swap in your site's button component and links.
 5. **Scroll length:** to shorten or lengthen the sequence, change `.hero-eco-wrapper { height: 440vh }`. The timeline is proportional, so it all stays in step.
@@ -105,6 +111,6 @@ Open `hero/index.html` in a browser through a local server, because some browser
 ```
 python3 -m http.server 8000
 ```
-Then visit http://localhost:8000/reference/, http://localhost:8000/hero/ and http://localhost:8000/subscribe/
+Then visit http://localhost:8000/hero/ and http://localhost:8000/subscribe/
 
-If GitHub Pages is switched on for this repo, the live demos are at `https://<owner>.github.io/<repo>/reference/`, `/hero/` and `/subscribe/`.
+If GitHub Pages is switched on for this repo, the live demos are at `https://<owner>.github.io/<repo>/hero/` and `/subscribe/`.

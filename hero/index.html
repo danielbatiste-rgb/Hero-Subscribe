@@ -72,13 +72,13 @@
     }
     .hero-eco-text {
       position: absolute;
-      top: 50%; left: 50%;
+      top: calc(50% + var(--nav-h, 64px) / 2); left: 50%; /* centred in the space below the nav */
       transform: translate(-50%, -50%) translateY(var(--hero-shift, 0px));
       z-index: 2;
       max-width: 1100px;
       width: 100%;
       text-align: center;
-      padding: 0 40px;
+      padding: 0 clamp(24px, 4vw, 40px);
     }
     .badge-dark {
       display: inline-flex;
@@ -92,22 +92,25 @@
       font-size: 12px;
       font-weight: 600;
       letter-spacing: 0.04em;
-      margin-bottom: 32px;
+      margin-bottom: clamp(16px, 3.5vh, 32px);
     }
+    /* Always two lines: each line is nowrap and the size scales to the narrower of
+       screen width (longest line is about 9.4em wide) and screen height */
     .hero-dark-h1 {
-      font-size: clamp(48px, 7vw, 96px);
+      font-size: clamp(28px, min(calc((100vw - 48px) / 9.8), 11vh), 96px);
       font-weight: 600;
       line-height: 1.0;
       letter-spacing: -0.045em;
       color: #F1F1F1;
-      margin-bottom: 24px;
+      margin-bottom: clamp(16px, 3vh, 24px);
     }
+    .hero-dark-h1 .h1-line { white-space: nowrap; }
     .hero-dark-sub {
       font-size: clamp(16px, 1.8vw, 20px);
       color: rgba(255,255,255,0.5);
       line-height: 1.65;
       max-width: 560px;
-      margin: 0 auto 48px;
+      margin: 0 auto clamp(24px, 5vh, 48px);
     }
     .hero-dark-ctas {
       display: flex;
@@ -186,23 +189,24 @@
     .hq-center {
       position: absolute;
       left: 50%; top: 50%;
-      width: min(440px, 78vw);
+      width: calc(var(--orb-w, 560px) * 0.8);
       transform: translate(-50%, -50%) translateY(var(--hq-y, 0px));
       text-align: center;
       z-index: 5;
       opacity: 0; /* JS-driven */
     }
     .hq-title {
-      width: clamp(220px, 24vw, 340px);
-      margin: 0 auto 22px;
+      width: min(340px, calc(var(--orb-w, 560px) * 0.56));
+      margin: 0 auto clamp(12px, calc(var(--orb-w, 560px) * 0.04), 22px);
     }
     .hq-title img { width: 100%; height: auto; display: block; }
     .hq-sub {
-      font-size: clamp(16px, 1.7vw, 21px);
+      font-size: clamp(14px, calc(var(--orb-w, 560px) * 0.036), 21px);
       font-weight: 500;
       color: rgba(255,255,255,0.86);
       line-height: 1.4;
       margin-bottom: 0;
+      text-wrap: balance;
     }
 
     /* Product cards: dark glass, gradient border, matching glow */
@@ -308,9 +312,6 @@
     .hq-solutions .hq-card-body { animation-duration: 7.4s; animation-delay: -1s; }
 
     @media (max-width: 759px) {
-      .hq-center { width: min(300px, 74vw); }
-      .hq-title { width: 190px; margin-bottom: 14px; }
-      .hq-sub { font-size: 15px; }
       .hq-card-inner { padding: 18px 18px 20px; }
       .hq-card-icon, .hq-audience .hq-card-icon { width: 40px; height: 40px; margin-bottom: 12px; }
       .hq-card-name, .hq-audience .hq-card-name { font-size: 20px; }
@@ -342,7 +343,7 @@
           <span class="badge-dot"></span>
           Decision intelligence system
         </span>
-        <h1 class="hero-dark-h1">We are a Decision<br>Intelligence Company</h1>
+        <h1 class="hero-dark-h1"><span class="h1-line">We are a Decision</span><br><span class="h1-line">Intelligence Company</span></h1>
         <p class="hero-dark-sub">Milieu unifies data, research, and AI so businesses can move first and move right</p>
         <div class="hero-dark-ctas">
           <button class="btn btn-primary btn-lg">Request demo</button>
@@ -439,11 +440,9 @@
        MILIEU HERO: JS START
        Plain JavaScript, no libraries. Run it after the hero HTML
        exists (end of body, or on DOMContentLoaded / component mount).
+       Set NAV_HEIGHT below to your fixed nav's height.
        ============================================================ */
     (function () {
-      // Height of your site's fixed nav. Used to keep the orb and cards clear of it on mobile.
-      const NAV_HEIGHT = 64;
-
       const heroEcoWrapper = document.getElementById('hero-eco-wrapper');
       const heroEcoText    = document.getElementById('hero-eco-text');
       const heroEcoOrb     = document.getElementById('hero-eco-orb');
@@ -467,6 +466,9 @@
       }
       function mix(a, b, t) { return a + (b - a) * t; }
 
+      // Height of the fixed nav. The orb and cards are kept clear of it.
+      const NAV_HEIGHT = 64;
+
       // Timeline (0-1 across the pinned scroll)
       const ORB_LOCK_END   = 0.18;  // orb settles centre, stays large
       const HQ_IN_START    = 0.21;  // after the orb has settled
@@ -488,13 +490,23 @@
         const mobile = vw < 760 || vw / vh < 0.8; // phones + portrait tablets use the stacked deck
         const heroW  = Math.min(Math.max(340, vh * 0.6), 680);
         const bigW   = heroW * 1.5;
+        const below = vh - NAV_HEIGHT; // visible height under the nav
         const lockedW = mobile
           ? Math.min(vw * 0.92, vh * 0.44)
-          : Math.min(bigW, vh * 0.78, vw * 0.52);
+          : Math.min(bigW, below * 0.84, vw * 0.5);
         const cx = vw / 2;
-        const cy = mobile ? NAV_HEIGHT + 8 + lockedW / 2 : vh / 2 + 16;
+        const cy = mobile ? NAV_HEIGHT + 8 + lockedW / 2 : NAV_HEIGHT + below / 2;
         const R  = lockedW / 2;
-        L = { vw, vh, mobile, bigW, lockedW, cx, cy, R };
+        // Cards scale down on smaller screens so all four fit around the orb
+        const cs = mobile
+          ? Math.max(0.8, Math.min(1, vh / 760))
+          : Math.max(0.62, Math.min(1, vh / 880, vw / 1400));
+        // On load the orb peeks up from the bottom, but never over the hero buttons
+        heroEcoWrapper.style.setProperty('--nav-h', `${NAV_HEIGHT}px`);
+        const textBottom = (vh + NAV_HEIGHT) / 2 + heroEcoText.offsetHeight / 2;
+        const bigY = Math.min(vh - 24, Math.max(vh - bigW * (mobile ? 0.14 : 0.25), textBottom + 28));
+        L = { vw, vh, mobile, bigW, bigY, lockedW, cx, cy, R, cs };
+        hqCenter.style.setProperty('--orb-w', `${lockedW}px`);
 
         // Rings + dot paths around the locked orb
         ecoOrbitSvg.setAttribute('viewBox', `0 0 ${vw} ${vh}`);
@@ -520,17 +532,19 @@
           if (mobile) card.style.setProperty('--w', `${Math.min(vw - 32, 420)}px`);
           const w = card.offsetWidth;
           const h = card.offsetHeight;
+          const sw = w * cs, sh = h * cs; // on-screen size after scaling (scales from its centre)
           let x, y;
           if (mobile) {
             x = (vw - w) / 2;
             // Sit just under the orb, leaving room for the stacked edges above
-            y = Math.min(vh - h - 20, cy + R + 24 + 42);
+            const top = Math.min(vh - sh - 20, cy + R + 24 + 42 * cs);
+            y = top - (h - sh) / 2;
           } else {
             // Keep upper and lower cards on the same side from overlapping
-            const ry = Math.max(R * 0.78, (h + 40) / (2 * Math.sin(32 * Math.PI / 180)));
+            const ry = Math.max(R * 0.78, (sh + 32) / (2 * Math.sin(32 * Math.PI / 180)));
             const a = Number(card.dataset.angle) * Math.PI / 180;
-            const ccx = Math.max(w / 2 + 24, Math.min(vw - w / 2 - 24, cx + Math.cos(a) * R * 1.42));
-            const ccy = Math.max(h / 2 + NAV_HEIGHT + 16, Math.min(vh - h / 2 - 24, cy + Math.sin(a) * ry));
+            const ccx = Math.max(sw / 2 + 20, Math.min(vw - sw / 2 - 20, cx + Math.cos(a) * R * 1.42));
+            const ccy = Math.max(sh / 2 + NAV_HEIGHT + 12, Math.min(vh - sh / 2 - 16, cy + Math.sin(a) * ry));
             x = ccx - w / 2;
             y = ccy - h / 2;
             // Cards start tucked towards the orb and move out to their slot
@@ -543,7 +557,7 @@
       }
 
       function updateHeroEco() {
-        const { vw, vh, mobile, bigW, lockedW, cx, cy } = L;
+        const { vw, vh, mobile, bigW, bigY, lockedW, cx, cy } = L;
         const wrapRect = heroEcoWrapper.getBoundingClientRect();
         const scrollDistance = heroEcoWrapper.offsetHeight - vh;
         const progress = scrollDistance > 0 ? clamp01(-wrapRect.top / scrollDistance) : 0;
@@ -556,7 +570,6 @@
 
         // Orb: big and low on load, glides up to centre and stays large
         const bigX = (vw - bigW) / 2;
-        const bigY = vh - bigW * (mobile ? 0.14 : 0.25); // less orb peeking on phones, the headline runs to four lines
         const lockX = cx - lockedW / 2;
         const lockY = cy - lockedW / 2;
         const exitW = lockedW * 0.5;
@@ -617,7 +630,7 @@
         cardRaf = cardP === cardTarget ? 0 : requestAnimationFrame(glideCards);
       }
       function renderCards(progress) {
-        const { mobile } = L;
+        const { mobile, cs } = L;
         const out = 1 - easeInOutCubic(mapRange(progress, FADE_OUT_START, FADE_OUT_END));
         hqCards.forEach((card, i) => {
           const start = CARD_START + i * CARD_STEP;
@@ -628,14 +641,14 @@
             const later = hqCards.reduce((acc, _, j) => j > i
               ? acc + easeInOutSine(mapRange(progress, CARD_START + j * CARD_STEP, CARD_START + j * CARD_STEP + CARD_DUR)) : acc, 0);
             ex = 0;
-            ey = (1 - v) * 180 - later * 14; // rises from low down, so it is solid before it covers the card beneath
-            s  = (1 - later * 0.05) * mix(0.96, 1, v);
+            ey = (1 - v) * 180 - later * 14 * cs; // rises from low down, so it is solid before it covers the card beneath
+            s  = cs * (1 - later * 0.05) * mix(0.96, 1, v);
             card.style.zIndex = String(6 + i);
             card.querySelector('.hq-card-inner').style.opacity = String(1 - Math.min(later, 3) * 0.12);
           } else {
             ex = (1 - v) * Number(card.dataset.ex || 0);
             ey = (1 - v) * (Number(card.dataset.ey || 0) + 36);
-            s  = mix(0.95, 1, v);
+            s  = cs * mix(0.95, 1, v);
             card.style.zIndex = '';
             card.querySelector('.hq-card-inner').style.opacity = '';
           }
@@ -653,6 +666,7 @@
       window.addEventListener('scroll', updateHeroEco, { passive: true });
       window.addEventListener('resize', onHeroResize);
       window.addEventListener('load', onHeroResize);
+      if (document.fonts) document.fonts.ready.then(onHeroResize); // re-measure once Archivo has loaded
       onHeroResize();
       heroEcoOrb.classList.add('is-ready');
     })();

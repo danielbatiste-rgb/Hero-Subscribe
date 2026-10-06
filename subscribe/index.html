@@ -281,10 +281,10 @@
       subForm.addEventListener('submit', (e) => {
         e.preventDefault();
         if (!subForm.reportValidity()) return;
-        // TODO: send the data to your newsletter service here (Mailchimp, HubSpot, etc.)
-        // const data = new FormData(subForm);   // fields: name, email, interests (multiple)
-        // await fetch('YOUR_ENDPOINT', { method: 'POST', body: data });
-        // Then show the thank-you state below. Show an error state if the request fails.
+      // TODO: send the data to your newsletter service here (Mailchimp, HubSpot, etc.)
+      // const data = new FormData(subForm);   // fields: name, email, interests (multiple)
+      // await fetch('YOUR_ENDPOINT', { method: 'POST', body: data });
+      // Then show the thank-you state below. Show an error state if the request fails.
         subForm.classList.add('is-done');
         subForm.querySelector('.subscribe-submit').innerHTML =
           '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Submitted"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
