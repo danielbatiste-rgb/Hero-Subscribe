@@ -4,10 +4,11 @@ Two self-contained components to bring into the new Milieu site. Each one is a w
 
 | Component | Demo page | What it is |
 |---|---|---|
+| Full page preview (reference only) | `reference/index.html` | The whole landing page as designed, to see the hero and form in context. **Do not build from it.** The other sections are outdated, and the live site has newer copy. |
 | **MiHQ hero** | `hero/index.html` | Top fold, then a pinned scroll sequence: the orb glides to centre, the MiHQ lockup and line fade in, then four product cards glide in one by one. Includes the mobile and portrait-tablet layout. |
 | **Subscribe form** | `subscribe/index.html` | Newsletter card that sits under the Latest Intelligence articles. Optional "Have more time?" interests panel and a thank-you message. |
 
-Only these two sections are in this repo. The rest of the live site has newer copy and is **not** included on purpose, so nothing here should overwrite it.
+Only these two components are meant for the build. The full page preview is there purely for context. Its other sections are older than the live site, so take code only from `hero/` and `subscribe/`.
 
 ---
 
@@ -104,6 +105,6 @@ Open `hero/index.html` in a browser through a local server, because some browser
 ```
 python3 -m http.server 8000
 ```
-Then visit http://localhost:8000/hero/ and http://localhost:8000/subscribe/
+Then visit http://localhost:8000/reference/, http://localhost:8000/hero/ and http://localhost:8000/subscribe/
 
-If GitHub Pages is switched on for this repo, the live demos are at `https://<owner>.github.io/<repo>/hero/` and `/subscribe/`.
+If GitHub Pages is switched on for this repo, the live demos are at `https://<owner>.github.io/<repo>/reference/`, `/hero/` and `/subscribe/`.
