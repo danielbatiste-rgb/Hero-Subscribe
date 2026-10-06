@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscribe Form | Milieu developer handoff</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       DEMO PAGE ONLY - not part of the form.
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Archivo', sans-serif; background: #F1F1F1; color: #242423; -webkit-font-smoothing: antialiased; }
+    .demo-wrap { max-width: 1200px; margin: 0 auto; padding: 96px 48px; }
+    .demo-above {
+      height: 220px; border: 1px dashed rgba(0,0,0,0.15); border-radius: 16px;
+      display: flex; align-items: center; justify-content: center; color: #8C8C8C; font-size: 14px;
+    }
+    @media (max-width: 900px) { .demo-wrap { padding: 72px 24px; } }
+
+    /* ============================================================
+       MILIEU SUBSCRIBE: CSS START
+       Uses these variables. Map them to your own tokens if you have them.
+       ============================================================ */
+    .subscribe {
+      --primary: #0067C2; --primary-dark: #004fa0; --black: #242423; --white: #ffffff;
+      --gray-mid: #4A4A48; --gray-sub: #8C8C8C; --radius-card: 16px;
+    }
+    /* Button base (placeholder - swap for your site's primary button if you like) */
+    .subscribe .btn {
+      font-family: inherit; font-weight: 600; letter-spacing: -0.01em; border: none; cursor: pointer;
+      border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      white-space: nowrap; transition: background 0.18s ease, box-shadow 0.22s ease;
+    }
+    .subscribe .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 3px 10px rgba(0,0,0,0.07); }
+    .subscribe .btn-primary:hover { background: var(--primary-dark); }
+    .subscribe *, .subscribe *::before, .subscribe *::after { box-sizing: border-box; }
+    .subscribe p, .subscribe h3 { margin: 0; }
+    /* ─── SUBSCRIBE (under Latest Intelligence) ─── */
+    .subscribe {
+      margin-top: 56px;
+      background: var(--white);
+      border: 1px solid rgba(0,0,0,0.07);
+      border-radius: var(--radius-card);
+      padding: 32px 36px;
+    }
+    .subscribe-main {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 2.2fr;
+      gap: 32px;
+      align-items: end;
+    }
+    .subscribe-eyebrow {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      border: 1px solid rgba(0,103,194,0.3);
+      background: rgba(0,103,194,0.06);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .subscribe-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--black);
+    }
+    .subscribe-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+    .subscribe-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-mid);
+      margin-bottom: 6px;
+    }
+    .subscribe-field input {
+      width: 100%;
+      font-family: 'Archivo', sans-serif;
+      font-size: 15px;
+      color: var(--black);
+      padding: 12px 18px;
+      border-radius: 9999px;
+      border: 1px solid rgba(0,0,0,0.14);
+      background: #F7F7F7;
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+    .subscribe-field input:focus {
+      background: var(--white);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,103,194,0.15);
+    }
+    .subscribe-submit { padding: 13px 28px; font-size: 15px; }
+    .subscribe-submit svg { width: 16px; height: 16px; }
+    .subscribe.is-done .subscribe-submit { background: #1E8E5A; pointer-events: none; }
+
+    /* "Have more time?" optional interests, opens in place */
+    .subscribe-more-toggle {
+      margin-top: 22px;
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 8px;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-family: 'Archivo', sans-serif;
+      font-size: 14px;
+      color: var(--gray-sub);
+    }
+    .subscribe-more-toggle strong { color: var(--black); font-weight: 600; }
+    .subscribe-more-toggle svg {
+      width: 16px; height: 16px;
+      color: var(--primary);
+      transition: transform 0.3s ease;
+    }
+    .subscribe-more-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+    .subscribe-more {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .subscribe-more.is-open { grid-template-rows: 1fr; }
+    .subscribe-more-inner { overflow: hidden; }
+    .subscribe-interests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 16px;
+      max-width: 760px;
+    }
+    .subscribe-interests label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 9999px;
+      border: 1px solid rgba(0,0,0,0.12);
+      font-size: 14px;
+      color: var(--gray-mid);
+      cursor: pointer;
+      transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+    }
+    .subscribe-thanks {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .subscribe-thanks-inner { overflow: hidden; }
+    .subscribe-thanks-body {
+      margin-top: 24px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(0,0,0,0.07);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.6s ease 0.2s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+    }
+    .subscribe.is-done .subscribe-thanks { grid-template-rows: 1fr; }
+    .subscribe.is-done .subscribe-thanks-body { opacity: 1; transform: none; }
+    .subscribe-thanks-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--black);
+      margin-bottom: 4px;
+    }
+    .subscribe-thanks-sub { font-size: 15px; color: var(--gray-mid); }
+    .subscribe-interests input { accent-color: var(--primary); width: 15px; height: 15px; margin: 0; }
+    .subscribe-interests label:has(input:checked) {
+      border-color: rgba(0,103,194,0.4);
+      background: rgba(0,103,194,0.06);
+      color: var(--primary);
+    }
+
+    @media (max-width: 900px) {
+      .subscribe-main { grid-template-columns: 1fr; gap: 20px; }
+    }
+    @media (max-width: 600px) {
+      .subscribe { padding: 24px 20px; }
+      .subscribe-fields { grid-template-columns: 1fr; }
+      .subscribe-submit { width: 100%; }
+    }
+    /* ============================================================
+       MILIEU SUBSCRIBE: CSS END
+       ============================================================ */
+  </style>
+</head>
+<body>
+  <div class="demo-wrap">
+
+    <!-- DEMO ONLY: stands in for the Latest Intelligence article cards above the form. -->
+    <div class="demo-above">Latest Intelligence article cards sit above the form</div>
+
+    <!-- ============================================================
+         MILIEU SUBSCRIBE: HTML START
+         ============================================================ -->
+      <!-- Newsletter subscribe. Not wired to a backend yet -->
+      <form class="subscribe" id="subscribe-form" novalidate>
+        <div class="subscribe-main">
+          <div>
+            <span class="subscribe-eyebrow">Stay updated with our newsletter</span>
+            <h3 class="subscribe-title">Subscribe Now</h3>
+          </div>
+          <div class="subscribe-fields">
+            <div class="subscribe-field">
+              <label for="sub-name">Full Name</label>
+              <input id="sub-name" name="name" type="text" autocomplete="name" required>
+            </div>
+            <div class="subscribe-field">
+              <label for="sub-email">Email Address</label>
+              <input id="sub-email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <button type="submit" class="btn btn-primary subscribe-submit">
+              Submit
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="subscribe-more-toggle" aria-expanded="false" aria-controls="subscribe-more">
+          Have more time? <strong>Tell us what interests you</strong>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+        </button>
+        <div class="subscribe-more" id="subscribe-more">
+          <div class="subscribe-more-inner">
+            <div class="subscribe-interests">
+              <label><input type="checkbox" name="interests" value="consumer-trends">Consumer trends</label>
+              <label><input type="checkbox" name="interests" value="survey-results">Survey results and data stories</label>
+              <label><input type="checkbox" name="interests" value="industry-insights">Industry insights</label>
+              <label><input type="checkbox" name="interests" value="research-tip">Research tip</label>
+              <label><input type="checkbox" name="interests" value="events">Events and webinars</label>
+              <label><input type="checkbox" name="interests" value="company-news">Company news and product updates</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thank-you message, expands in under the form after submit -->
+        <div class="subscribe-thanks" aria-live="polite">
+          <div class="subscribe-thanks-inner">
+            <div class="subscribe-thanks-body">
+              <p class="subscribe-thanks-title">Thanks for signing up</p>
+              <p class="subscribe-thanks-sub">Stay ahead with the latest consumer insights across the region</p>
+            </div>
+          </div>
+        </div>
+      </form>
+    <!-- ============================================================
+         MILIEU SUBSCRIBE: HTML END
+         ============================================================ -->
+
+  </div>
+
+  <script>
+    /* ============================================================
+       MILIEU SUBSCRIBE: JS START
+       Interests toggle + thank-you state. Plain JavaScript.
+       NOT CONNECTED: see "TODO" below to send the data to your
+       newsletter service.
+       ============================================================ */
+    (function () {
+      const subForm   = document.getElementById('subscribe-form');
+      const subToggle = subForm.querySelector('.subscribe-more-toggle');
+      const subMore   = document.getElementById('subscribe-more');
+      subToggle.addEventListener('click', () => {
+        const open = subToggle.getAttribute('aria-expanded') !== 'true';
+        subToggle.setAttribute('aria-expanded', String(open));
+        subMore.classList.toggle('is-open', open);
+      });
+      subForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!subForm.reportValidity()) return;
+        // TODO: send the data to your newsletter service here (Mailchimp, HubSpot, etc.)
+        // const data = new FormData(subForm);   // fields: name, email, interests (multiple)
+        // await fetch('YOUR_ENDPOINT', { method: 'POST', body: data });
+        // Then show the thank-you state below. Show an error state if the request fails.
+        subForm.classList.add('is-done');
+        subForm.querySelector('.subscribe-submit').innerHTML =
+          '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Submitted"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
+      });
+    })();
+    /* ============================================================
+       MILIEU SUBSCRIBE: JS END
+       ============================================================ */
+  </script>
+</body>
+</html>

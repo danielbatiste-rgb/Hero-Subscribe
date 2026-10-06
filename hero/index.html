@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiHQ Hero | Milieu developer handoff</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       DEMO PAGE ONLY - not part of the hero. Your site already has
+       its own reset, fonts, nav and buttons.
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --primary: #0067C2; --primary-dark: #004fa0; --cyan: #00AEE2; }
+    body { font-family: 'Archivo', sans-serif; background: #1A1A1A; color: #F1F1F1; -webkit-font-smoothing: antialiased; }
+    .demo-nav {
+      position: fixed; inset: 0 0 auto 0; z-index: 999; height: 64px;
+      display: flex; align-items: center; padding: 0 24px;
+      background: rgba(26,26,26,0.82); border-bottom: 1px solid rgba(255,255,255,0.07);
+      font-size: 13px; color: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    }
+    .demo-next {
+      min-height: 80vh; display: flex; align-items: center; justify-content: center;
+      border-top: 1px dashed rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); font-size: 14px;
+    }
+    /* Placeholder buttons - swap for your site's button component */
+    .btn, .btn-outline-white {
+      font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+      border-radius: 9999px; padding: 13px 32px; display: inline-flex; align-items: center;
+      transition: background 0.18s ease, border-color 0.18s ease;
+    }
+    .btn-primary { background: var(--primary); color: #fff; border: none; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline-white { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.3); }
+    .btn-outline-white:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+    @media (max-width: 600px) { .btn, .btn-outline-white { font-size: 14px; } }
+
+    /* ============================================================
+       MILIEU HERO: CSS START
+       Everything from here to "MILIEU HERO: CSS END" is the hero.
+       Uses the Archivo font and these colours: #1A1A1A, #F1F1F1,
+       #0067C2, #48ADFF, #00AEE2.
+       ============================================================ */
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #00AEE2;
+      box-shadow: 0 0 6px #00AEE2;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.8); }
+    }
+    @keyframes hero-in { to { opacity: 1; transform: none; } }
+
+    /* ─── HERO + ECOSYSTEM (sticky scroll) ─── */
+    .hero-eco-wrapper {
+      position: relative;
+      height: 440vh;
+      background: #1A1A1A;
+    }
+    .hero-eco-sticky {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      width: 100%;
+      overflow: hidden;
+      background: #1A1A1A;
+    }
+    .hero-eco-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) translateY(var(--hero-shift, 0px));
+      z-index: 2;
+      max-width: 1100px;
+      width: 100%;
+      text-align: center;
+      padding: 0 40px;
+    }
+    .badge-dark {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px 6px 10px;
+      border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-bottom: 32px;
+    }
+    .hero-dark-h1 {
+      font-size: clamp(48px, 7vw, 96px);
+      font-weight: 600;
+      line-height: 1.0;
+      letter-spacing: -0.045em;
+      color: #F1F1F1;
+      margin-bottom: 24px;
+    }
+    .hero-dark-sub {
+      font-size: clamp(16px, 1.8vw, 20px);
+      color: rgba(255,255,255,0.5);
+      line-height: 1.65;
+      max-width: 560px;
+      margin: 0 auto 48px;
+    }
+    .hero-dark-ctas {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    /* Idle "breathing" float - applied on top of scroll-driven positioning/transforms */
+    @property --bob-y {
+      syntax: '<length>';
+      inherits: false;
+      initial-value: 0px;
+    }
+    @keyframes eco-bob {
+      0%, 100% { --bob-y: 0px; }
+      50%      { --bob-y: -6px; }
+    }
+    @keyframes eco-bob-lg {
+      0%, 100% { --bob-y: 0px; }
+      50%      { --bob-y: -14px; }
+    }
+
+    /* Shared orb - single element, driven by scroll JS */
+    .hero-eco-orb {
+      position: absolute;
+      mix-blend-mode: lighten;
+      pointer-events: none;
+      z-index: 3;
+      will-change: top, left, width, opacity;
+      transform: translateY(var(--bob-y, 0px));
+      animation: eco-bob-lg 9s ease-in-out infinite;
+    }
+    .hero-eco-orb video { width: 100%; height: auto; display: block; opacity: 0; }
+    /* Orb stays hidden until JS has sized and placed it, then fades in (no top-left flash on load) */
+    .hero-eco-orb.is-ready video { animation: orb-in 1s ease 0.2s forwards; }
+    @keyframes orb-in { to { opacity: 1; } }
+    /* Dark hero entrance */
+    .hero-eco-text > * {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: hero-in 0.9s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .badge-dark       { animation-delay: 0.12s; }
+    .hero-dark-h1     { animation-delay: 0.24s; }
+    .hero-dark-sub    { animation-delay: 0.36s; }
+    .hero-dark-ctas   { animation-delay: 0.48s; }
+
+    /* ─── MIHQ ECOSYSTEM ─── */
+    /* Stage fills the pinned viewport. Rings, centre copy and cards are placed by JS around the orb. */
+    .eco-stage {
+      position: absolute;
+      inset: 0;
+      z-index: 4; /* above the orb so cards and copy sit on top of it */
+      pointer-events: none;
+    }
+    .eco-orbit-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+    .eco-orbit-ring {
+      fill: none;
+      stroke: rgba(255,255,255,0.16);
+      stroke-width: 1px;
+      stroke-dasharray: 6 5;
+    }
+    .eco-orbit-ring-outer { stroke: rgba(255,255,255,0.08); }
+    .eco-orbit-dot {
+      fill: #48ADFF;
+      filter: drop-shadow(0 0 6px rgba(72,173,255,0.85));
+    }
+
+    /* Centre copy, sits over the orb */
+    .hq-center {
+      position: absolute;
+      left: 50%; top: 50%;
+      width: min(440px, 78vw);
+      transform: translate(-50%, -50%) translateY(var(--hq-y, 0px));
+      text-align: center;
+      z-index: 5;
+      opacity: 0; /* JS-driven */
+    }
+    .hq-title {
+      width: clamp(220px, 24vw, 340px);
+      margin: 0 auto 22px;
+    }
+    .hq-title img { width: 100%; height: auto; display: block; }
+    .hq-sub {
+      font-size: clamp(16px, 1.7vw, 21px);
+      font-weight: 500;
+      color: rgba(255,255,255,0.86);
+      line-height: 1.4;
+      margin-bottom: 0;
+    }
+
+    /* Product cards: dark glass, gradient border, matching glow */
+    .hq-card {
+      position: absolute;
+      left: 0; top: 0;
+      width: var(--w, 240px);
+      z-index: 6;
+      --c1: #0067C2; --c2: #48ADFF; --glow: 72,173,255;
+      --tx: 0px; --ty: 0px; --enter-x: 0px; --enter-y: 0px; --enter-s: 1; --enter-blur: 0px;
+      opacity: 0; /* JS-driven */
+      transform: translate(var(--tx), var(--ty)) translate(var(--enter-x), var(--enter-y)) scale(var(--enter-s));
+      filter: blur(var(--enter-blur));
+      will-change: transform, opacity;
+    }
+    .hq-card.is-live { pointer-events: auto; }
+    .hq-card-body {
+      position: relative;
+      transform: translateY(var(--bob-y, 0px));
+      animation: eco-bob 7s ease-in-out infinite;
+    }
+    .hq-card-lift {
+      position: relative;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hq-card-glow {
+      position: absolute;
+      inset: 2%;
+      border-radius: 28px;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      filter: blur(36px);
+      opacity: 0.75;
+      transition: opacity 0.5s ease, inset 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hq-card-inner {
+      position: relative;
+      border-radius: 22px;
+      border: 2px solid transparent;
+      background:
+        linear-gradient(160deg, #1b1c20, #111214) padding-box,
+        linear-gradient(135deg, var(--c1), rgba(255,255,255,0.55) 55%, var(--c2)) border-box;
+      box-shadow: inset 0 0 28px rgba(var(--glow), 0.12);
+      padding: 22px 22px 24px;
+      overflow: hidden;
+      transition: box-shadow 0.5s ease;
+    }
+    /* Soft sheen that sweeps across on hover */
+    .hq-card-inner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+      transform: translateX(-120%);
+      transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .hq-card:hover .hq-card-lift { transform: translateY(-8px) scale(1.035); }
+    .hq-card:hover .hq-card-glow { opacity: 1; inset: -8%; }
+    .hq-card:hover .hq-card-inner { box-shadow: inset 0 0 36px rgba(var(--glow), 0.24); }
+    .hq-card:hover .hq-card-inner::after { transform: translateX(120%); }
+    .hq-card-icon {
+      width: 44px; height: 44px;
+      margin-bottom: 18px;
+    }
+    .hq-card-icon img { width: 100%; height: 100%; display: block; }
+    .hq-card-layer {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgb(var(--glow));
+      margin-bottom: 6px;
+    }
+    .hq-card-name {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .hq-card-subs {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+    .hq-card-desc {
+      font-size: 13.5px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.5;
+      margin-top: 6px;
+    }
+    /* Scale + colour per layer. Audience leads, Reports next, Services and Solutions smaller */
+    .hq-audience  { --w: 290px; --c1: #0067C2; --c2: #48ADFF; --glow: 72,173,255; }
+    .hq-reports   { --w: 256px; --c1: #2F8CFF; --c2: #7FD3FF; --glow: 127,211,255; }
+    .hq-services  { --w: 236px; --c1: #3D4FE0; --c2: #7B8CFF; --glow: 123,140,255; }
+    .hq-solutions { --w: 236px; --c1: #6A4DF0; --c2: #B7A4FF; --glow: 183,164,255; }
+    .hq-audience .hq-card-name { font-size: 23px; }
+    .hq-audience .hq-card-icon { width: 52px; height: 52px; }
+    .hq-reports .hq-card-body   { animation-duration: 7.8s; animation-delay: -2s; }
+    .hq-services .hq-card-body  { animation-duration: 8.2s; animation-delay: -4s; }
+    .hq-solutions .hq-card-body { animation-duration: 7.4s; animation-delay: -1s; }
+
+    @media (max-width: 759px) {
+      .hq-center { width: min(300px, 74vw); }
+      .hq-title { width: 190px; margin-bottom: 14px; }
+      .hq-sub { font-size: 15px; }
+      .hq-card-inner { padding: 18px 18px 20px; }
+      .hq-card-icon, .hq-audience .hq-card-icon { width: 40px; height: 40px; margin-bottom: 12px; }
+      .hq-card-name, .hq-audience .hq-card-name { font-size: 20px; }
+    }
+
+    @media (max-width: 600px) {
+      .hero-dark-ctas { flex-direction: column; align-items: center; }
+    }
+    /* ============================================================
+       MILIEU HERO: CSS END
+       ============================================================ */
+  </style>
+</head>
+<body>
+
+  <!-- DEMO ONLY: stands in for your site's fixed nav (64px tall). -->
+  <div class="demo-nav">Your site nav (64px, fixed)</div>
+
+  <!-- ============================================================
+       MILIEU HERO: HTML START
+       ============================================================ -->
+  
+  <div class="hero-eco-wrapper" id="hero-eco-wrapper">
+    <div class="hero-eco-sticky">
+
+      <!-- Hero copy - fades out as the scroll sequence begins -->
+      <div class="hero-eco-text" id="hero-eco-text">
+        <span class="badge-dark">
+          <span class="badge-dot"></span>
+          Decision intelligence system
+        </span>
+        <h1 class="hero-dark-h1">We are a Decision<br>Intelligence Company</h1>
+        <p class="hero-dark-sub">Milieu unifies data, research, and AI so businesses can move first and move right</p>
+        <div class="hero-dark-ctas">
+          <button class="btn btn-primary btn-lg">Request demo</button>
+          <button class="btn-outline-white btn-lg">Contact us</button>
+        </div>
+      </div>
+
+      <!-- MiHQ ecosystem: orb locks centre, copy reveals, then the cards one by one -->
+      <div class="eco-stage" id="eco-stage">
+
+        <!-- Orbit rings: sized and drawn by JS around the orb -->
+        <svg class="eco-orbit-svg" aria-hidden="true">
+          <ellipse class="eco-orbit-ring eco-orbit-ring-inner"/>
+          <ellipse class="eco-orbit-ring eco-orbit-ring-outer"/>
+          <circle class="eco-orbit-dot" r="5"><animateMotion dur="24s" repeatCount="indefinite"/></circle>
+          <circle class="eco-orbit-dot" r="5"><animateMotion dur="36s" repeatCount="indefinite"/></circle>
+        </svg>
+
+        <div class="hq-center" id="hq-center">
+          <h2 class="hq-title"><img src="assets/mihq-lockup.svg" alt="MiHQ, powered by MiCortex"></h2>
+          <p class="hq-sub">Your research. Our panel. One platform</p>
+        </div>
+
+        <!-- data-angle: position on the orbit (degrees, 0 = right, clockwise). Order = reveal order -->
+        <div class="hq-card hq-audience" data-angle="212">
+          <div class="hq-card-body"><div class="hq-card-lift">
+            <div class="hq-card-glow"></div>
+            <div class="hq-card-inner">
+              <div class="hq-card-icon"><img src="assets/icon-audience.svg" alt=""></div>
+              <div class="hq-card-layer">Audience</div>
+              <div class="hq-card-name">MiAudience</div>
+              <p class="hq-card-desc">Profiled audience data across six Southeast Asian markets, built on our own panel</p>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="hq-card hq-reports" data-angle="-32">
+          <div class="hq-card-body"><div class="hq-card-lift">
+            <div class="hq-card-glow"></div>
+            <div class="hq-card-inner">
+              <div class="hq-card-icon"><img src="assets/icon-reports.svg" alt=""></div>
+              <div class="hq-card-layer">Reports</div>
+              <div class="hq-card-name">MiReports</div>
+              <p class="hq-card-desc">Ready-made reports drawn from MiAudience data. The paid entry point to MiAudience</p>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="hq-card hq-services" data-angle="34">
+          <div class="hq-card-body"><div class="hq-card-lift">
+            <div class="hq-card-glow"></div>
+            <div class="hq-card-inner">
+              <div class="hq-card-icon"><img src="assets/icon-services.svg" alt=""></div>
+              <div class="hq-card-layer">Services</div>
+              <div class="hq-card-name">MiResearch</div>
+              <div class="hq-card-subs">MiCustom, MiBus, MiRetail</div>
+              <p class="hq-card-desc">Research we design, field and deliver for clients</p>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="hq-card hq-solutions" data-angle="148">
+          <div class="hq-card-body"><div class="hq-card-lift">
+            <div class="hq-card-glow"></div>
+            <div class="hq-card-inner">
+              <div class="hq-card-icon"><img src="assets/icon-solutions.svg" alt=""></div>
+              <div class="hq-card-layer">Solutions</div>
+              <div class="hq-card-name">MiBrand, MiTemplates</div>
+              <p class="hq-card-desc">Brand tracking and ready-built studies, both quoted</p>
+            </div>
+          </div></div>
+        </div>
+
+      </div><!-- /eco-stage -->
+
+      <!-- Shared orb - single asset used across the whole sequence -->
+      <div class="hero-eco-orb" id="hero-eco-orb">
+        <video autoplay muted loop playsinline>
+          <source src="assets/mihq-orb.mp4" type="video/mp4">
+        </video>
+      </div>
+
+    </div><!-- /hero-eco-sticky -->
+  </div><!-- /hero-eco-wrapper -->
+  <!-- ============================================================
+       MILIEU HERO: HTML END
+       ============================================================ -->
+
+  <!-- DEMO ONLY: the rest of your page continues here. -->
+  <section class="demo-next">Next section of your site</section>
+
+  <script>
+    /* ============================================================
+       MILIEU HERO: JS START
+       Plain JavaScript, no libraries. Run it after the hero HTML
+       exists (end of body, or on DOMContentLoaded / component mount).
+       ============================================================ */
+    (function () {
+      // Height of your site's fixed nav. Used to keep the orb and cards clear of it on mobile.
+      const NAV_HEIGHT = 64;
+
+      const heroEcoWrapper = document.getElementById('hero-eco-wrapper');
+      const heroEcoText    = document.getElementById('hero-eco-text');
+      const heroEcoOrb     = document.getElementById('hero-eco-orb');
+      const ecoStage       = document.getElementById('eco-stage');
+      const ecoOrbitSvg    = ecoStage.querySelector('.eco-orbit-svg');
+      const orbitRings     = Array.from(ecoStage.querySelectorAll('.eco-orbit-ring'));
+      const orbitDots      = Array.from(ecoStage.querySelectorAll('.eco-orbit-dot'));
+      const hqCenter       = document.getElementById('hq-center');
+      const hqLogo         = hqCenter.querySelector('.hq-title');
+      const hqCopy         = Array.from(hqCenter.querySelectorAll('.hq-sub'));
+      const hqCards        = Array.from(ecoStage.querySelectorAll('.hq-card'));
+
+      function easeInOutCubic(t) {
+        return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+      }
+      function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+      function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+      function mapRange(v, inMin, inMax) {
+        if (inMax === inMin) return v < inMin ? 0 : 1;
+        return clamp01((v - inMin) / (inMax - inMin));
+      }
+      function mix(a, b, t) { return a + (b - a) * t; }
+
+      // Timeline (0-1 across the pinned scroll)
+      const ORB_LOCK_END   = 0.18;  // orb settles centre, stays large
+      const HQ_IN_START    = 0.21;  // after the orb has settled
+      const HQ_IN_END      = 0.31;
+      const COPY_IN_START  = 0.28;  // supporting copy follows the logo
+      const COPY_IN_END    = 0.36;
+      const CARD_START     = 0.37;  // cards reveal one per step
+      const CARD_STEP      = 0.10;
+      const CARD_DUR       = 0.14;  // longer than a step, so each glide overlaps the next
+      const FADE_OUT_START = 0.84;
+      const FADE_OUT_END   = 0.95;
+      const ORB_EXIT_START = 0.86;
+
+      // Layout, recalculated on resize
+      let L = {};
+      function layoutHeroEco() {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const mobile = vw < 760 || vw / vh < 0.8; // phones + portrait tablets use the stacked deck
+        const heroW  = Math.min(Math.max(340, vh * 0.6), 680);
+        const bigW   = heroW * 1.5;
+        const lockedW = mobile
+          ? Math.min(vw * 0.92, vh * 0.44)
+          : Math.min(bigW, vh * 0.78, vw * 0.52);
+        const cx = vw / 2;
+        const cy = mobile ? NAV_HEIGHT + 8 + lockedW / 2 : vh / 2 + 16;
+        const R  = lockedW / 2;
+        L = { vw, vh, mobile, bigW, lockedW, cx, cy, R };
+
+        // Rings + dot paths around the locked orb
+        ecoOrbitSvg.setAttribute('viewBox', `0 0 ${vw} ${vh}`);
+        const rings = mobile
+          ? [[R * 1.08, R * 1.08], [R * 1.22, R * 1.22]]
+          : [[R * 1.32, R * 1.02], [R * 1.72, Math.min(R * 1.24, vh / 2 - 8)]];
+        orbitRings.forEach((ring, i) => {
+          const [rx, ry] = rings[i];
+          ring.setAttribute('cx', cx); ring.setAttribute('cy', cy);
+          ring.setAttribute('rx', rx); ring.setAttribute('ry', ry);
+          const len = Math.ceil(ring.getTotalLength ? ring.getTotalLength() : 2 * Math.PI * rx);
+          ring.dataset.len = len;
+        });
+        orbitDots.forEach((dot, i) => {
+          const [rx, ry] = rings[i];
+          dot.querySelector('animateMotion').setAttribute('path',
+            `M ${cx + rx} ${cy} A ${rx} ${ry} 0 1 1 ${cx - rx} ${cy} A ${rx} ${ry} 0 1 1 ${cx + rx} ${cy}`);
+        });
+
+        // Card slots
+        hqCards.forEach((card, i) => {
+          card.style.removeProperty('--w');
+          if (mobile) card.style.setProperty('--w', `${Math.min(vw - 32, 420)}px`);
+          const w = card.offsetWidth;
+          const h = card.offsetHeight;
+          let x, y;
+          if (mobile) {
+            x = (vw - w) / 2;
+            // Sit just under the orb, leaving room for the stacked edges above
+            y = Math.min(vh - h - 20, cy + R + 24 + 42);
+          } else {
+            // Keep upper and lower cards on the same side from overlapping
+            const ry = Math.max(R * 0.78, (h + 40) / (2 * Math.sin(32 * Math.PI / 180)));
+            const a = Number(card.dataset.angle) * Math.PI / 180;
+            const ccx = Math.max(w / 2 + 24, Math.min(vw - w / 2 - 24, cx + Math.cos(a) * R * 1.42));
+            const ccy = Math.max(h / 2 + NAV_HEIGHT + 16, Math.min(vh - h / 2 - 24, cy + Math.sin(a) * ry));
+            x = ccx - w / 2;
+            y = ccy - h / 2;
+            // Cards start tucked towards the orb and move out to their slot
+            card.dataset.ex = (cx - ccx) * 0.25;
+            card.dataset.ey = (cy - ccy) * 0.25;
+          }
+          card.style.setProperty('--tx', `${x}px`);
+          card.style.setProperty('--ty', `${y}px`);
+        });
+      }
+
+      function updateHeroEco() {
+        const { vw, vh, mobile, bigW, lockedW, cx, cy } = L;
+        const wrapRect = heroEcoWrapper.getBoundingClientRect();
+        const scrollDistance = heroEcoWrapper.offsetHeight - vh;
+        const progress = scrollDistance > 0 ? clamp01(-wrapRect.top / scrollDistance) : 0;
+
+        // Hero copy fades (and lifts slightly) right at the start of the scroll
+        const heroFade = mapRange(progress, 0, 0.1);
+        heroEcoText.style.opacity = String(1 - heroFade);
+        heroEcoText.style.setProperty('--hero-shift', `${-easeInOutCubic(heroFade) * 40}px`);
+        heroEcoText.style.pointerEvents = heroFade > 0.5 ? 'none' : '';
+
+        // Orb: big and low on load, glides up to centre and stays large
+        const bigX = (vw - bigW) / 2;
+        const bigY = vh - bigW * (mobile ? 0.14 : 0.25); // less orb peeking on phones, the headline runs to four lines
+        const lockX = cx - lockedW / 2;
+        const lockY = cy - lockedW / 2;
+        const exitW = lockedW * 0.5;
+        let orbW, orbX, orbY, orbOpacity = 1;
+        if (progress <= ORB_LOCK_END) {
+          const t = easeInOutCubic(mapRange(progress, 0, ORB_LOCK_END));
+          orbW = mix(bigW, lockedW, t);
+          orbX = mix(bigX, lockX, t);
+          orbY = mix(bigY, lockY, t);
+        } else if (progress <= ORB_EXIT_START) {
+          orbW = lockedW; orbX = lockX; orbY = lockY;
+        } else {
+          const t = easeInOutCubic(mapRange(progress, ORB_EXIT_START, 1));
+          orbW = mix(lockedW, exitW, t);
+          orbX = mix(lockX, (vw - exitW) / 2, t);
+          orbY = mix(lockY, -exitW * 1.3, t);
+          orbOpacity = 1 - t;
+        }
+        heroEcoOrb.style.width   = `${orbW}px`;
+        heroEcoOrb.style.left    = `${orbX}px`;
+        heroEcoOrb.style.top     = `${orbY}px`;
+        heroEcoOrb.style.opacity = String(orbOpacity);
+
+        // Everything in the scene fades together at the end
+        const out = 1 - easeInOutCubic(mapRange(progress, FADE_OUT_START, FADE_OUT_END));
+
+        // MiHQ copy + rings
+        const hqP = easeOutCubic(mapRange(progress, HQ_IN_START, HQ_IN_END));
+        const copyP = easeOutCubic(mapRange(progress, COPY_IN_START, COPY_IN_END));
+        hqCenter.style.opacity = String(out);
+        hqLogo.style.opacity = String(hqP);
+        hqCopy.forEach(el => {
+          el.style.opacity = String(copyP);
+          el.style.transform = `translateY(${(1 - copyP) * 14}px)`;
+        });
+        hqCenter.style.left = `${cx}px`;
+        hqCenter.style.top  = `${cy}px`;
+        hqCenter.style.setProperty('--hq-y', `${(1 - hqP) * 24}px`);
+        orbitRings.forEach(ring => {
+          const len = Number(ring.dataset.len) || 3000;
+          ring.style.strokeDashoffset = String(len * (1 - hqP));
+          ring.style.opacity = String(hqP * out);
+        });
+        orbitDots.forEach(dot => { dot.style.opacity = String(hqP * out); });
+
+        // Cards, one per step. They follow a smoothed copy of the scroll so they glide in
+        cardTarget = progress;
+        if (!cardRaf) cardRaf = requestAnimationFrame(glideCards);
+      }
+
+      // Smoothed card progress: eases towards the scroll position each frame
+      let cardP = 0, cardTarget = 0, cardRaf = 0;
+      function easeInOutSine(t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
+      function glideCards() {
+        cardP += (cardTarget - cardP) * 0.07;
+        if (Math.abs(cardTarget - cardP) < 0.0003) cardP = cardTarget;
+        renderCards(cardP);
+        cardRaf = cardP === cardTarget ? 0 : requestAnimationFrame(glideCards);
+      }
+      function renderCards(progress) {
+        const { mobile } = L;
+        const out = 1 - easeInOutCubic(mapRange(progress, FADE_OUT_START, FADE_OUT_END));
+        hqCards.forEach((card, i) => {
+          const start = CARD_START + i * CARD_STEP;
+          const v = easeInOutSine(mapRange(progress, start, start + CARD_DUR));
+          let ex, ey, s;
+          if (mobile) {
+            // Deck: new card rises from below, earlier cards step back behind it
+            const later = hqCards.reduce((acc, _, j) => j > i
+              ? acc + easeInOutSine(mapRange(progress, CARD_START + j * CARD_STEP, CARD_START + j * CARD_STEP + CARD_DUR)) : acc, 0);
+            ex = 0;
+            ey = (1 - v) * 180 - later * 14; // rises from low down, so it is solid before it covers the card beneath
+            s  = (1 - later * 0.05) * mix(0.96, 1, v);
+            card.style.zIndex = String(6 + i);
+            card.querySelector('.hq-card-inner').style.opacity = String(1 - Math.min(later, 3) * 0.12);
+          } else {
+            ex = (1 - v) * Number(card.dataset.ex || 0);
+            ey = (1 - v) * (Number(card.dataset.ey || 0) + 36);
+            s  = mix(0.95, 1, v);
+            card.style.zIndex = '';
+            card.querySelector('.hq-card-inner').style.opacity = '';
+          }
+          // On the deck, go solid early so the card underneath does not show through
+          card.style.opacity = String((mobile ? Math.min(1, v * 2.5) : v) * out);
+          card.style.setProperty('--enter-x', `${ex}px`);
+          card.style.setProperty('--enter-y', `${ey}px`);
+          card.style.setProperty('--enter-s', String(s));
+          card.style.setProperty('--enter-blur', `${mobile ? 0 : (1 - v) * 5}px`);
+          card.classList.toggle('is-live', v * out > 0.6);
+        });
+      }
+
+      function onHeroResize() { layoutHeroEco(); updateHeroEco(); cardP = cardTarget; renderCards(cardP); }
+      window.addEventListener('scroll', updateHeroEco, { passive: true });
+      window.addEventListener('resize', onHeroResize);
+      window.addEventListener('load', onHeroResize);
+      onHeroResize();
+      heroEcoOrb.classList.add('is-ready');
+    })();
+    /* ============================================================
+       MILIEU HERO: JS END
+       ============================================================ */
+  </script>
+</body>
+</html>
