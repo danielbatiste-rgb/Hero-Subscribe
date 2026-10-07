@@ -104,6 +104,34 @@
     .subscribe-submit svg { width: 16px; height: 16px; }
     .subscribe.is-done .subscribe-submit { background: #1E8E5A; pointer-events: none; }
 
+    /* PDPA consent (required) */
+    .subscribe-consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 20px;
+      max-width: 760px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--gray-mid);
+      cursor: pointer;
+    }
+    .subscribe-consent input { accent-color: var(--primary); width: 16px; height: 16px; margin: 1px 0 0; flex-shrink: 0; }
+    .subscribe-consent a { color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+    .subscribe-error { margin-top: 12px; font-size: 13px; font-weight: 600; color: #C4321C; }
+    /* Phones: consent sits between the fields and Submit, so it's seen before submitting */
+    @media (max-width: 600px) {
+      .subscribe { display: flex; flex-direction: column; }
+      .subscribe-main, .subscribe-fields { display: contents; }
+      .subscribe-field { margin-top: 14px; }
+      .subscribe-consent { order: 1; margin-top: 16px; }
+      .subscribe-submit { order: 2; margin-top: 18px; }
+      .subscribe-error { order: 3; }
+      .subscribe-more-toggle { order: 4; align-self: flex-start; }
+      .subscribe-more { order: 5; }
+      .subscribe-thanks { order: 6; }
+    }
+
     /* "Have more time?" optional interests, opens in place */
     .subscribe-more-toggle {
       margin-top: 22px;
@@ -206,11 +234,11 @@
     <!-- ============================================================
          MILIEU SUBSCRIBE: HTML START
          ============================================================ -->
-      <!-- Newsletter subscribe. Not wired to a backend yet -->
+      <!-- Newsletter subscribe. Submits to HubSpot once HUBSPOT ids are set in the JS (see README) -->
       <form class="subscribe" id="subscribe-form" novalidate>
         <div class="subscribe-main">
           <div>
-            <span class="subscribe-eyebrow">Stay updated with our newsletter</span>
+            <span class="subscribe-eyebrow">Stay Updated with Our Newsletter</span>
             <h3 class="subscribe-title">Subscribe Now</h3>
           </div>
           <div class="subscribe-fields">
@@ -229,19 +257,26 @@
           </div>
         </div>
 
+        <!-- PDPA consent. DRAFT wording: confirm with legal before launch. Privacy link is a placeholder -->
+        <label class="subscribe-consent">
+          <input type="checkbox" name="consent" required>
+          <span>I agree to Milieu collecting and using my personal data to send me newsletters and updates, in line with the <a href="#privacy-policy">Privacy Policy</a></span>
+        </label>
+        <p class="subscribe-error" role="alert" hidden>Something went wrong. Please try again</p>
+
         <button type="button" class="subscribe-more-toggle" aria-expanded="false" aria-controls="subscribe-more">
-          Have more time? <strong>Tell us what interests you</strong>
+          Have More Time? <strong>Tell Us What Interests You</strong>
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
         </button>
         <div class="subscribe-more" id="subscribe-more">
           <div class="subscribe-more-inner">
             <div class="subscribe-interests">
-              <label><input type="checkbox" name="interests" value="consumer-trends">Consumer trends</label>
-              <label><input type="checkbox" name="interests" value="survey-results">Survey results and data stories</label>
-              <label><input type="checkbox" name="interests" value="industry-insights">Industry insights</label>
-              <label><input type="checkbox" name="interests" value="research-tip">Research tip</label>
-              <label><input type="checkbox" name="interests" value="events">Events and webinars</label>
-              <label><input type="checkbox" name="interests" value="company-news">Company news and product updates</label>
+              <label><input type="checkbox" name="interests" value="consumer-trends">Consumer Trends</label>
+              <label><input type="checkbox" name="interests" value="survey-results">Survey Results and Data Stories</label>
+              <label><input type="checkbox" name="interests" value="industry-insights">Industry Insights</label>
+              <label><input type="checkbox" name="interests" value="research-tips">Research Tips</label>
+              <label><input type="checkbox" name="interests" value="events">Events and Webinars</label>
+              <label><input type="checkbox" name="interests" value="company-news">Company News and Product Updates</label>
             </div>
           </div>
         </div>
@@ -265,11 +300,17 @@
   <script>
     /* ============================================================
        MILIEU SUBSCRIBE: JS START
-       Interests toggle + thank-you state. Plain JavaScript.
-       NOT CONNECTED: see "TODO" below to send the data to your
-       newsletter service.
+       Interests toggle, HubSpot submit and thank-you state. Plain
+       JavaScript. Set HUBSPOT.portalId / formId below to go live;
+       until then it runs in demo mode (see README).
        ============================================================ */
     (function () {
+      // Fill these in to go live. Until then the form only shows the thank-you state (demo mode).
+      const HUBSPOT = {
+        portalId: '',            // HubSpot account (portal) ID
+        formId: '',              // GUID of the HubSpot newsletter form
+        subscriptionTypeId: null // HubSpot subscription type for the newsletter (number)
+      };
       const subForm   = document.getElementById('subscribe-form');
       const subToggle = subForm.querySelector('.subscribe-more-toggle');
       const subMore   = document.getElementById('subscribe-more');
@@ -278,13 +319,48 @@
         subToggle.setAttribute('aria-expanded', String(open));
         subMore.classList.toggle('is-open', open);
       });
-      subForm.addEventListener('submit', (e) => {
+      function hubspotCookie() {
+        const m = document.cookie.match(/(?:^|; )hubspotutk=([^;]*)/);
+        return m ? decodeURIComponent(m[1]) : undefined;
+      }
+      async function sendToHubSpot() {
+        const data = new FormData(subForm);
+        const [firstname, ...rest] = String(data.get('name')).trim().split(/\s+/);
+        const consentText = subForm.querySelector('.subscribe-consent span').textContent.trim();
+        const body = {
+          fields: [
+            { objectTypeId: '0-1', name: 'firstname', value: firstname },
+            { objectTypeId: '0-1', name: 'lastname',  value: rest.join(' ') },
+            { objectTypeId: '0-1', name: 'email',     value: data.get('email') },
+            // Custom HubSpot property for the optional interests: create it in HubSpot and match the name
+            { objectTypeId: '0-1', name: 'newsletter_interests', value: data.getAll('interests').join(';') }
+          ],
+          // Source tracking: hutk links this submission to the visitor's HubSpot cookie (original source,
+          // UTMs, pages viewed). It needs the HubSpot tracking code on every page of the site.
+          context: { hutk: hubspotCookie(), pageUri: location.href, pageName: document.title },
+          legalConsentOptions: { consent: {
+            consentToProcess: true,
+            text: consentText,
+            communications: HUBSPOT.subscriptionTypeId
+              ? [{ value: true, subscriptionTypeId: HUBSPOT.subscriptionTypeId, text: consentText }] : []
+          } }
+        };
+        const res = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT.portalId}/${HUBSPOT.formId}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(`HubSpot ${res.status}`);
+      }
+      subForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!subForm.reportValidity()) return;
-      // TODO: send the data to your newsletter service here (Mailchimp, HubSpot, etc.)
-      // const data = new FormData(subForm);   // fields: name, email, interests (multiple)
-      // await fetch('YOUR_ENDPOINT', { method: 'POST', body: data });
-      // Then show the thank-you state below. Show an error state if the request fails.
+        const btn = subForm.querySelector('.subscribe-submit');
+        const err = subForm.querySelector('.subscribe-error');
+        err.hidden = true;
+        if (HUBSPOT.portalId && HUBSPOT.formId) {
+          btn.disabled = true;
+          try { await sendToHubSpot(); }
+          catch (ex) { console.error(ex); err.hidden = false; btn.disabled = false; return; }
+        }
         subForm.classList.add('is-done');
         subForm.querySelector('.subscribe-submit').innerHTML =
           '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Submitted"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';

@@ -59,7 +59,7 @@
     /* ─── HERO + ECOSYSTEM (sticky scroll) ─── */
     .hero-eco-wrapper {
       position: relative;
-      height: 440vh;
+      height: 560vh;
       background: #1A1A1A;
     }
     .hero-eco-sticky {
@@ -196,10 +196,53 @@
       opacity: 0; /* JS-driven */
     }
     .hq-title {
-      width: min(340px, calc(var(--orb-w, 560px) * 0.56));
+      width: min(230px, calc(var(--orb-w, 560px) * 0.38));
       margin: 0 auto clamp(12px, calc(var(--orb-w, 560px) * 0.04), 22px);
     }
     .hq-title img { width: 100%; height: auto; display: block; }
+    /* Logo is a link: glows as it arrives (JS sets --logo-glow) and grows + glows on hover */
+    .hq-logo-link {
+      display: block;
+      pointer-events: none; /* JS turns it on once the logo is visible */
+      filter: drop-shadow(0 0 22px rgba(72,173,255, var(--logo-glow, 0)));
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+    }
+    .hq-logo-link.is-live { pointer-events: auto; }
+    .hq-logo-link:hover, .hq-logo-link:focus-visible {
+      transform: scale(1.06);
+      filter: drop-shadow(0 0 28px rgba(72,173,255,0.7));
+    }
+    .hq-logo-link:focus-visible, .hq-card:focus-visible { outline: 2px solid #48ADFF; outline-offset: 6px; border-radius: 12px; }
+
+    /* Line under the logo, then the "Explore MiHQ" block that replaces it */
+    .hq-swap { position: relative; }
+    .hq-explore {
+      position: absolute;
+      top: 0; left: 50%;
+      width: calc(var(--orb-w, 560px) * 0.78);
+      transform: translateX(-50%);
+      opacity: 0; /* JS-driven */
+      pointer-events: none;
+    }
+    .hq-explore.is-live { pointer-events: auto; }
+    .hq-explore-title {
+      font-size: clamp(17px, calc(var(--orb-w, 560px) * 0.038), 24px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #F1F1F1;
+      margin-bottom: 8px;
+    }
+    .hq-explore-was { font-weight: 500; color: rgba(255,255,255,0.5); }
+    .hq-explore-sub {
+      font-size: clamp(13px, calc(var(--orb-w, 560px) * 0.026), 16px);
+      line-height: 1.5;
+      color: rgba(255,255,255,0.62);
+      margin-bottom: clamp(14px, calc(var(--orb-w, 560px) * 0.035), 22px);
+      text-wrap: balance;
+    }
+    .hq-explore-cta { font-size: 15px; padding: 12px 26px; text-decoration: none; }
+    .hq-explore.is-below .hq-explore-title { font-size: 20px; }
+    .hq-explore.is-below .hq-explore-sub { font-size: 15px; }
     .hq-sub {
       font-size: clamp(14px, calc(var(--orb-w, 560px) * 0.036), 21px);
       font-weight: 500;
@@ -218,6 +261,9 @@
       --c1: #0067C2; --c2: #48ADFF; --glow: 72,173,255;
       --tx: 0px; --ty: 0px; --enter-x: 0px; --enter-y: 0px; --enter-s: 1; --enter-blur: 0px;
       opacity: 0; /* JS-driven */
+      display: block;
+      color: inherit;
+      text-decoration: none;
       transform: translate(var(--tx), var(--ty)) translate(var(--enter-x), var(--enter-y)) scale(var(--enter-s));
       filter: blur(var(--enter-blur));
       will-change: transform, opacity;
@@ -263,7 +309,7 @@
       transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
       pointer-events: none;
     }
-    .hq-card:hover .hq-card-lift { transform: translateY(-8px) scale(1.035); }
+    .hq-card:focus-visible .hq-card-lift, .hq-card:hover .hq-card-lift { transform: translateY(-8px) scale(1.035); }
     .hq-card:hover .hq-card-glow { opacity: 1; inset: -8%; }
     .hq-card:hover .hq-card-inner { box-shadow: inset 0 0 36px rgba(var(--glow), 0.24); }
     .hq-card:hover .hq-card-inner::after { transform: translateX(120%); }
@@ -341,13 +387,13 @@
       <div class="hero-eco-text" id="hero-eco-text">
         <span class="badge-dark">
           <span class="badge-dot"></span>
-          Decision intelligence system
+          Decision Intelligence System
         </span>
         <h1 class="hero-dark-h1"><span class="h1-line">We are a Decision</span><br><span class="h1-line">Intelligence Company</span></h1>
         <p class="hero-dark-sub">Milieu unifies data, research, and AI so businesses can move first and move right</p>
         <div class="hero-dark-ctas">
-          <button class="btn btn-primary btn-lg">Request demo</button>
-          <button class="btn-outline-white btn-lg">Contact us</button>
+          <button class="btn btn-primary btn-lg">Request Demo</button>
+          <button class="btn-outline-white btn-lg">Contact Us</button>
         </div>
       </div>
 
@@ -363,12 +409,21 @@
         </svg>
 
         <div class="hq-center" id="hq-center">
-          <h2 class="hq-title"><img src="assets/mihq-lockup.svg" alt="MiHQ, powered by MiCortex"></h2>
-          <p class="hq-sub">Your research. Our panel. One platform</p>
+          <!-- Placeholder links (#...): swap for the real page URLs -->
+          <h2 class="hq-title"><a class="hq-logo-link" href="#mihq"><img src="assets/mihq-lockup.svg" alt="MiHQ, powered by MiCortex"></a></h2>
+          <div class="hq-swap">
+            <p class="hq-sub">Your research. Our panel. One platform</p>
+            <!-- Shown once the cards have faded away -->
+            <div class="hq-explore">
+              <p class="hq-explore-title">Explore MiHQ <span class="hq-explore-was">[Formerly Canvas]</span></p>
+              <p class="hq-explore-sub">Our own panel in six Southeast Asian markets, and partner panels in more than 150 countries</p>
+              <a class="btn btn-primary hq-explore-cta" href="#pricing">See Pricing</a>
+            </div>
+          </div>
         </div>
 
         <!-- data-angle: position on the orbit (degrees, 0 = right, clockwise). Order = reveal order -->
-        <div class="hq-card hq-audience" data-angle="212">
+        <a class="hq-card hq-audience" href="#miaudience" data-angle="212">
           <div class="hq-card-body"><div class="hq-card-lift">
             <div class="hq-card-glow"></div>
             <div class="hq-card-inner">
@@ -378,9 +433,9 @@
               <p class="hq-card-desc">Profiled audience data across six Southeast Asian markets, built on our own panel</p>
             </div>
           </div></div>
-        </div>
+        </a>
 
-        <div class="hq-card hq-reports" data-angle="-32">
+        <a class="hq-card hq-reports" href="#mireports" data-angle="-32">
           <div class="hq-card-body"><div class="hq-card-lift">
             <div class="hq-card-glow"></div>
             <div class="hq-card-inner">
@@ -390,9 +445,9 @@
               <p class="hq-card-desc">Ready-made reports drawn from MiAudience data. The paid entry point to MiAudience</p>
             </div>
           </div></div>
-        </div>
+        </a>
 
-        <div class="hq-card hq-services" data-angle="34">
+        <a class="hq-card hq-services" href="#miresearch" data-angle="34">
           <div class="hq-card-body"><div class="hq-card-lift">
             <div class="hq-card-glow"></div>
             <div class="hq-card-inner">
@@ -403,9 +458,9 @@
               <p class="hq-card-desc">Research we design, field and deliver for clients</p>
             </div>
           </div></div>
-        </div>
+        </a>
 
-        <div class="hq-card hq-solutions" data-angle="148">
+        <a class="hq-card hq-solutions" href="#solutions" data-angle="148">
           <div class="hq-card-body"><div class="hq-card-lift">
             <div class="hq-card-glow"></div>
             <div class="hq-card-inner">
@@ -415,7 +470,7 @@
               <p class="hq-card-desc">Brand tracking and ready-built studies, both quoted</p>
             </div>
           </div></div>
-        </div>
+        </a>
 
       </div><!-- /eco-stage -->
 
@@ -452,6 +507,8 @@
       const orbitDots      = Array.from(ecoStage.querySelectorAll('.eco-orbit-dot'));
       const hqCenter       = document.getElementById('hq-center');
       const hqLogo         = hqCenter.querySelector('.hq-title');
+      const hqLogoLink     = hqCenter.querySelector('.hq-logo-link');
+      const hqExplore      = hqCenter.querySelector('.hq-explore');
       const hqCopy         = Array.from(hqCenter.querySelectorAll('.hq-sub'));
       const hqCards        = Array.from(ecoStage.querySelectorAll('.hq-card'));
 
@@ -470,17 +527,21 @@
       const NAV_HEIGHT = 64;
 
       // Timeline (0-1 across the pinned scroll)
-      const ORB_LOCK_END   = 0.18;  // orb settles centre, stays large
-      const HQ_IN_START    = 0.21;  // after the orb has settled
-      const HQ_IN_END      = 0.31;
-      const COPY_IN_START  = 0.28;  // supporting copy follows the logo
-      const COPY_IN_END    = 0.36;
-      const CARD_START     = 0.37;  // cards reveal one per step
-      const CARD_STEP      = 0.10;
-      const CARD_DUR       = 0.14;  // longer than a step, so each glide overlaps the next
-      const FADE_OUT_START = 0.84;
-      const FADE_OUT_END   = 0.95;
-      const ORB_EXIT_START = 0.86;
+      const ORB_LOCK_END   = 0.13;  // orb settles centre, stays large
+      const HQ_IN_START    = 0.155; // after the orb has settled
+      const HQ_IN_END      = 0.23;
+      const COPY_IN_START  = 0.205; // supporting copy follows the logo
+      const COPY_IN_END    = 0.265;
+      const CARD_START     = 0.27;  // cards reveal one per step
+      const CARD_STEP      = 0.075;
+      const CARD_DUR       = 0.10;  // longer than a step, so each glide overlaps the next
+      const CARDS_OUT_START = 0.64; // all four shown, then they fade away
+      const CARDS_OUT_END   = 0.70;
+      const EXPLORE_IN_START = 0.68; // line under the logo swaps to "Explore MiHQ" + CTA
+      const EXPLORE_IN_END   = 0.76;
+      const FADE_OUT_START = 0.88;
+      const FADE_OUT_END   = 0.96;
+      const ORB_EXIT_START = 0.90;
 
       // Layout, recalculated on resize
       let L = {};
@@ -507,6 +568,16 @@
         const bigY = Math.min(vh - 24, Math.max(vh - bigW * (mobile ? 0.14 : 0.25), textBottom + 28));
         L = { vw, vh, mobile, bigW, bigY, lockedW, cx, cy, R, cs };
         hqCenter.style.setProperty('--orb-w', `${lockedW}px`);
+        // Phones: the Explore block sits under the orb (where the cards were), not squeezed inside it
+        if (mobile) {
+          const swapTop = hqCenter.querySelector('.hq-swap').offsetTop;
+          hqExplore.style.top = `${R + 28 + hqCenter.offsetHeight / 2 - swapTop}px`;
+          hqExplore.style.width = `${Math.min(vw - 48, 360)}px`;
+          hqExplore.classList.add('is-below');
+        } else {
+          hqExplore.style.top = hqExplore.style.width = '';
+          hqExplore.classList.remove('is-below');
+        }
 
         // Rings + dot paths around the locked orb
         ecoOrbitSvg.setAttribute('viewBox', `0 0 ${vw} ${vh}`);
@@ -599,15 +670,25 @@
         // MiHQ copy + rings
         const hqP = easeOutCubic(mapRange(progress, HQ_IN_START, HQ_IN_END));
         const copyP = easeOutCubic(mapRange(progress, COPY_IN_START, COPY_IN_END));
+        const subOut   = easeInOutCubic(mapRange(progress, CARDS_OUT_START, EXPLORE_IN_START + 0.02));
+        const exploreP = easeOutCubic(mapRange(progress, EXPLORE_IN_START, EXPLORE_IN_END));
         hqCenter.style.opacity = String(out);
         hqLogo.style.opacity = String(hqP);
+        // Logo glows as it arrives, then settles to a faint glow
+        hqLogoLink.style.setProperty('--logo-glow', String(0.12 + 0.5 * Math.sin(Math.PI * Math.min(hqP, 0.999))));
+        hqLogoLink.classList.toggle('is-live', hqP * out > 0.6);
         hqCopy.forEach(el => {
-          el.style.opacity = String(copyP);
-          el.style.transform = `translateY(${(1 - copyP) * 14}px)`;
+          el.style.opacity = String(copyP * (1 - subOut));
+          el.style.transform = `translateY(${(1 - copyP) * 14 - subOut * 10}px)`;
         });
+        hqExplore.style.opacity = String(exploreP);
+        hqExplore.style.transform = `translateX(-50%) translateY(${(1 - exploreP) * 16}px)`;
+        hqExplore.classList.toggle('is-live', exploreP * out > 0.6);
+        // The Explore block is taller than the line it replaces: lift the group so it stays centred on the orb
+        const lift = mobile ? 0 : Math.max(0, hqExplore.offsetHeight - hqCopy[0].offsetHeight) / 2;
         hqCenter.style.left = `${cx}px`;
         hqCenter.style.top  = `${cy}px`;
-        hqCenter.style.setProperty('--hq-y', `${(1 - hqP) * 24}px`);
+        hqCenter.style.setProperty('--hq-y', `${(1 - hqP) * 24 - easeInOutCubic(mapRange(progress, CARDS_OUT_START, EXPLORE_IN_END)) * lift}px`);
         orbitRings.forEach(ring => {
           const len = Number(ring.dataset.len) || 3000;
           ring.style.strokeDashoffset = String(len * (1 - hqP));
@@ -631,7 +712,8 @@
       }
       function renderCards(progress) {
         const { mobile, cs } = L;
-        const out = 1 - easeInOutCubic(mapRange(progress, FADE_OUT_START, FADE_OUT_END));
+        // Cards leave before the Explore block arrives
+        const out = 1 - easeInOutCubic(mapRange(progress, CARDS_OUT_START, CARDS_OUT_END));
         hqCards.forEach((card, i) => {
           const start = CARD_START + i * CARD_STEP;
           const v = easeInOutSine(mapRange(progress, start, start + CARD_DUR));
