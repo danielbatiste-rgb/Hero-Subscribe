@@ -295,7 +295,7 @@
         linear-gradient(160deg, #1b1c20, #111214) padding-box,
         linear-gradient(135deg, var(--c1), rgba(255,255,255,0.55) 55%, var(--c2)) border-box;
       box-shadow: inset 0 0 28px rgba(var(--glow), 0.12);
-      padding: 22px 22px 24px;
+      padding: 26px;
       overflow: hidden;
       transition: box-shadow 0.5s ease;
     }
@@ -346,21 +346,42 @@
       line-height: 1.5;
       margin-top: 6px;
     }
-    /* Scale + colour per layer. Audience leads, Reports next, Services and Solutions smaller */
-    .hq-audience  { --w: 290px; --c1: #0067C2; --c2: #48ADFF; --glow: 72,173,255; }
-    .hq-reports   { --w: 256px; --c1: #2F8CFF; --c2: #7FD3FF; --glow: 127,211,255; }
-    .hq-services  { --w: 236px; --c1: #3D4FE0; --c2: #7B8CFF; --glow: 123,140,255; }
-    .hq-solutions { --w: 236px; --c1: #6A4DF0; --c2: #B7A4FF; --glow: 183,164,255; }
-    .hq-audience .hq-card-name { font-size: 23px; }
-    .hq-audience .hq-card-icon { width: 52px; height: 52px; }
+    /* All four cards share one size (JS also matches their heights); colour sets each layer apart */
+    .hq-card      { --w: 290px; }
+    .hq-audience  { --c1: #0067C2; --c2: #48ADFF; --glow: 72,173,255; }
+    .hq-reports   { --c1: #2F8CFF; --c2: #7FD3FF; --glow: 127,211,255; }
+    .hq-services  { --c1: #3D4FE0; --c2: #7B8CFF; --glow: 123,140,255; }
+    .hq-solutions { --c1: #6A4DF0; --c2: #B7A4FF; --glow: 183,164,255; }
+
+    /* Solutions card: two product rows, each its own link */
+    .hq-solutions .hq-card-layer { margin-bottom: 4px; }
+    .hq-row {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 12px 10px;
+      margin: 0 -10px;
+      border-radius: 12px;
+      color: inherit;
+      text-decoration: none;
+      transition: background 0.25s ease;
+    }
+    .hq-row + .hq-row { border-top: 1px solid rgba(255,255,255,0.08); border-radius: 0 0 12px 12px; }
+    .hq-row:hover, .hq-row:focus-visible { background: rgba(var(--glow), 0.1); outline: none; }
+    .hq-row-icon img { width: 44px; height: 44px; display: block; } /* same size as the other cards' icons */
+    .hq-row .hq-card-name { display: block; margin-bottom: 2px; } /* same size as the other cards' names */
+    .hq-row .hq-card-desc { display: block; margin-top: 0; font-size: 13px; }
     .hq-reports .hq-card-body   { animation-duration: 7.8s; animation-delay: -2s; }
     .hq-services .hq-card-body  { animation-duration: 8.2s; animation-delay: -4s; }
     .hq-solutions .hq-card-body { animation-duration: 7.4s; animation-delay: -1s; }
 
     @media (max-width: 759px) {
       .hq-card-inner { padding: 18px 18px 20px; }
-      .hq-card-icon, .hq-audience .hq-card-icon { width: 40px; height: 40px; margin-bottom: 12px; }
-      .hq-card-name, .hq-audience .hq-card-name { font-size: 20px; }
+      .hq-card-icon { width: 40px; height: 40px; margin-bottom: 12px; }
+      .hq-row { grid-template-columns: 40px 1fr; }
+      .hq-row-icon img { width: 40px; height: 40px; }
+      .hq-card-name { font-size: 20px; }
     }
 
     @media (max-width: 600px) {
@@ -415,7 +436,7 @@
             <p class="hq-sub">Your research. Our panel. One platform</p>
             <!-- Shown once the cards have faded away -->
             <div class="hq-explore">
-              <p class="hq-explore-title">Explore MiHQ <span class="hq-explore-was">[Formerly Canvas]</span></p>
+              <p class="hq-explore-title">Explore MiHQ <span class="hq-explore-was">(formerly Canvas)</span></p>
               <p class="hq-explore-sub">Our own panel in six Southeast Asian markets, and partner panels in more than 150 countries</p>
               <a class="btn btn-primary hq-explore-cta" href="#pricing">See Pricing</a>
             </div>
@@ -442,12 +463,12 @@
               <div class="hq-card-icon"><img src="assets/icon-reports.svg" alt=""></div>
               <div class="hq-card-layer">Reports</div>
               <div class="hq-card-name">MiReports</div>
-              <p class="hq-card-desc">Ready-made reports drawn from MiAudience data. The paid entry point to MiAudience</p>
+              <p class="hq-card-desc">Ready-made sector reports drawn from MiAudience data</p>
             </div>
           </div></div>
         </a>
 
-        <a class="hq-card hq-services" href="#miresearch" data-angle="34">
+        <a class="hq-card hq-services" href="#miresearch" data-angle="32">
           <div class="hq-card-body"><div class="hq-card-lift">
             <div class="hq-card-glow"></div>
             <div class="hq-card-inner">
@@ -455,22 +476,34 @@
               <div class="hq-card-layer">Services</div>
               <div class="hq-card-name">MiResearch</div>
               <div class="hq-card-subs">MiCustom, MiBus, MiRetail</div>
-              <p class="hq-card-desc">Research we design, field and deliver for clients</p>
+              <p class="hq-card-desc">Research we design, field and deliver for you</p>
             </div>
           </div></div>
         </a>
 
-        <a class="hq-card hq-solutions" href="#solutions" data-angle="148">
+        <!-- One Solutions card holding two products, each row its own link -->
+        <div class="hq-card hq-solutions" data-angle="148">
           <div class="hq-card-body"><div class="hq-card-lift">
             <div class="hq-card-glow"></div>
             <div class="hq-card-inner">
-              <div class="hq-card-icon"><img src="assets/icon-solutions.svg" alt=""></div>
               <div class="hq-card-layer">Solutions</div>
-              <div class="hq-card-name">MiBrand, MiTemplates</div>
-              <p class="hq-card-desc">Brand tracking and ready-built studies, both quoted</p>
+              <a class="hq-row" href="#mibrand">
+                <span class="hq-row-icon"><img src="assets/icon-mibrand.svg" alt=""></span>
+                <span class="hq-row-text">
+                  <span class="hq-card-name">MiBrand</span>
+                  <span class="hq-card-desc">Track your brand over time</span>
+                </span>
+              </a>
+              <a class="hq-row" href="#mitemplates">
+                <span class="hq-row-icon"><img src="assets/icon-mitemplates.svg" alt=""></span>
+                <span class="hq-row-text">
+                  <span class="hq-card-name">MiTemplates</span>
+                  <span class="hq-card-desc">Run a proven study with benchmarks built in</span>
+                </span>
+              </a>
             </div>
           </div></div>
-        </a>
+        </div>
 
       </div><!-- /eco-stage -->
 
@@ -597,10 +630,16 @@
             `M ${cx + rx} ${cy} A ${rx} ${ry} 0 1 1 ${cx - rx} ${cy} A ${rx} ${ry} 0 1 1 ${cx + rx} ${cy}`);
         });
 
-        // Card slots
-        hqCards.forEach((card, i) => {
+        // Card slots. All cards share one width and are matched to the tallest card's height
+        const inners = hqCards.map(c => c.querySelector('.hq-card-inner'));
+        hqCards.forEach(card => {
           card.style.removeProperty('--w');
           if (mobile) card.style.setProperty('--w', `${Math.min(vw - 32, 420)}px`);
+        });
+        inners.forEach(el => { el.style.minHeight = ''; });
+        const tallest = Math.max(...inners.map(el => el.offsetHeight));
+        inners.forEach(el => { el.style.minHeight = `${tallest}px`; });
+        hqCards.forEach((card, i) => {
           const w = card.offsetWidth;
           const h = card.offsetHeight;
           const sw = w * cs, sh = h * cs; // on-screen size after scaling (scales from its centre)

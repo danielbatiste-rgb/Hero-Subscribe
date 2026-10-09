@@ -39,7 +39,8 @@ hero/assets/mihq-lockup.svg     MiHQ + "Powered by MiCortex" logo lockup
 hero/assets/icon-audience.svg   card icons
 hero/assets/icon-reports.svg
 hero/assets/icon-services.svg
-hero/assets/icon-solutions.svg
+hero/assets/icon-mibrand.svg
+hero/assets/icon-mitemplates.svg
 ```
 
 ### How it works
@@ -84,7 +85,8 @@ hero/assets/icon-solutions.svg
    | MiAudience card | `#miaudience` |
    | MiReports card | `#mireports` |
    | MiResearch card | `#miresearch` |
-   | MiBrand, MiTemplates card | `#solutions` |
+   | MiBrand row (Solutions card) | `#mibrand` |
+   | MiTemplates row (Solutions card) | `#mitemplates` |
    | See Pricing button | `#pricing` |
    | Request Demo / Contact Us (top fold) | none yet (`<button>`) |
 
@@ -99,8 +101,12 @@ hero/assets/icon-solutions.svg
 - H1: We are a Decision / Intelligence Company
 - Sub: Milieu unifies data, research, and AI so businesses can move first and move right
 - Centre: MiHQ lockup, then "Your research. Our panel. One platform"
-- After the cards: **Explore MiHQ** [Formerly Canvas] / Our own panel in six Southeast Asian markets, and partner panels in more than 150 countries / See Pricing
-- Cards: Audience / MiAudience, Reports / MiReports, Services / MiResearch (MiCustom, MiBus, MiRetail), Solutions / MiBrand, MiTemplates
+- After the cards: **Explore MiHQ** (formerly Canvas) / Our own panel in six Southeast Asian markets, and partner panels in more than 150 countries / See Pricing
+- Cards (all four the same size, matched in JS to the tallest card):
+  - Audience / MiAudience: Profiled audience data across six Southeast Asian markets, built on our own panel
+  - Reports / MiReports: Ready-made sector reports drawn from MiAudience data
+  - Services / MiResearch: MiCustom, MiBus, MiRetail. Research we design, field and deliver for you
+  - Solutions: one card with two linked rows. MiBrand: Track your brand over time. MiTemplates: Run a proven study with benchmarks built in
 
 House style: no em dashes in visible copy, and no full stops at the end of the lines above.
 
@@ -116,6 +122,11 @@ House style: no em dashes in visible copy, and no full stops at the end of the l
   **Thanks for signing up** / Stay ahead with the latest consumer insights across the region
 - If HubSpot rejects the submission, a short error shows and the form stays usable: *"Something went wrong. Please try again"* (draft wording).
 - On phones the order is Name, Email, consent, Submit, so the consent box is seen before submitting.
+
+### Reference images
+`subscribe/reference/` has the form sitting under the Latest Intelligence cards, rendered from the real code (2x resolution):
+- `form-desktop.png` / `form-mobile.png`: default state
+- `form-desktop-submitted.png` / `form-mobile-submitted.png`: interests open, two picked, consent ticked and the thank-you message showing
 
 ### HubSpot and source tracking (needs doing before launch)
 The team needs every sign-up to show **where the person came from** in HubSpot (original source, UTM campaign, pages viewed). This broke in Aug/Sep, so please check it end to end.
